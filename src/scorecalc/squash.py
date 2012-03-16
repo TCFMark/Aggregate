@@ -6,7 +6,10 @@ Created on 15 Mar 2012
 
 import sys
 import csv
+import datetime
 from optparse import OptionParser
+
+now = datetime.datetime.now()
 
 
 def main():
@@ -16,11 +19,20 @@ def main():
                       dest="total",
                       default=False,
                       help="calculate the total score")
+    parser.add_option("-w", "--write",
+                      action="store_true",
+                      dest="write",
+                      default=False,
+                      help="write today's scores to the file")
     (options, args) = parser.parse_args()
     if len(args) != 1:
         print "Only one argument permitted.\n\
         Usage: %prog [options] filename"
         sys.exit()
+    if options == None:
+        print "Nothing to be done."
+    if options.write == True:
+        writeScore()
     if options.total == True:
         calculateTotalScore()
 
@@ -55,6 +67,18 @@ def calculateTotalScore():
             aTotalScore, bTotalScore = \
             aTotalScore + aScore, bTotalScore + bScore
     print "Total score:", aName, aTotalScore, "-", bTotalScore, bName
+
+
+def writeScore():
+    """Writes the score to the file, with today's date
+    """
+    data = csv.reader(open(sys.argv[-1], 'rb'))
+    firstRow = next(data)
+    aScore = raw_input("{0}: ".format(firstRow[0]))
+    bScore = raw_input("{0}: ".format(firstRow[1]))
+    writer = csv.writer(open(sys.argv[-1], 'ab'))
+    writer.writerow([aScore, bScore, now.day, now.month, now.year])
+
 
 if __name__ == '__main__':
     main()
